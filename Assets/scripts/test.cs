@@ -34,7 +34,7 @@ public class test : MonoBehaviour
 
         myText2.text = "Time: " + Time.time.ToString("F1");
         time+=Time.deltaTime;
-        if(time >= 10)
+        if(time >= 5)
         {
             myText2.color = Color.red;
         }
