@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    public float speed;
-    public float jumpForce;
-    private bool isGround;
+    [SerializeField] private float speed;
+    [SerializeField] private float jumpForce;
+    [SerializeField] private bool isGround;
     Rigidbody2D rb;
     // Start is called before the first frame update
     void Start()
