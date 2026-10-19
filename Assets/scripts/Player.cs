@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,37 +10,60 @@ public class Player : MonoBehaviour
     [SerializeField] private bool isGround;
     Rigidbody2D rb;
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
     }   
 
     // Update is called once per frame
-    void Update()
+    private void Update()
+    {
+        HandleInput();
+    }
+
+    private void HandleInput()
     {
         if (Input.GetKey(KeyCode.A))
         {
-            transform.position += new Vector3(speed*Time.deltaTime*-1, 0, 0);
-            transform.localScale = new Vector3(-1,1,1);
+            MoveLeft();
         }
         else if (Input.GetKey(KeyCode.D))
         {
-            transform.position += new Vector3(speed*Time.deltaTime*+1, 0, 0);
-            transform.localScale = new Vector3(1,1,1);
+            MoveRight();
         }
 
         if (Input.GetKeyDown(KeyCode.Space) && isGround)
         {
-            rb.AddForce(new Vector2(0,jumpForce), ForceMode2D.Impulse);
-            isGround = false;
+            Jump();
         }
     }
 
-    void OnCollisionEnter2D(Collision2D collision)
+    private void MoveLeft()
+    {
+        transform.position += new Vector3(speed*Time.deltaTime*-1, 0, 0);
+        transform.localScale = new Vector3(-Math.Abs(transform.localScale.x),transform.localScale.y,transform.localScale.z);
+    }
+    
+    private void MoveRight()
+    {
+        transform.position += new Vector3(speed*Time.deltaTime*+1, 0, 0);
+        transform.localScale = new Vector3(Math.Abs(transform.localScale.x),transform.localScale.y,transform.localScale.z);
+    }
+
+    private void Jump()
+    {
+        rb.AddForce(new Vector2(0,jumpForce), ForceMode2D.Impulse);
+        isGround = false;
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
     {
         if(collision.gameObject.tag == "Ground")
         {
             isGround = true;
         }
     }
+
 }
+
+// code so clean
