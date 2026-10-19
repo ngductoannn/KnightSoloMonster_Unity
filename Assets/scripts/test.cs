@@ -13,12 +13,12 @@ public class test : MonoBehaviour
     void Start()
     {
         myText1.text = "I'm Toan";
+        myText1.color = Color.blue;
     }
 
     // Update is called once per frame
     void Update()
     {
-        myText1.color = Color.blue;
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             myText1.gameObject.SetActive(false);
@@ -31,12 +31,29 @@ public class test : MonoBehaviour
         {
             myText1.fontSize +=1;
         }
+        else if (Input.GetKey(KeyCode.D))
+        {
+            myText1.fontSize -=1;
+        }
 
         myText2.text = "Time: " + Time.time.ToString("F1");
         time+=Time.deltaTime;
         if(time >= 5)
         {
             myText2.color = Color.red;
+        }
+
+    }
+
+    public void ChangeColor()
+    {
+        if(myText1.color == Color.blue)
+        {
+            myText1.color = Color.red;
+        }
+        else if(myText1.color == Color.red)
+        {
+            myText1.color = Color.blue;
         }
     }
 }
