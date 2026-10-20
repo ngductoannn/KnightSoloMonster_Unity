@@ -5,55 +5,81 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    [Header("Movement")]
     [SerializeField] private float speed;
     [SerializeField] private float jumpForce;
+
+    [Header("Check")]
     [SerializeField] private bool isGround;
-    Rigidbody2D rb;
+
+    private Animator animator;
+
+    private float horizontal;
+    private Rigidbody2D rb;
     // Start is called before the first frame update
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
     }   
 
     // Update is called once per frame
     private void Update()
     {
         HandleInput();
+        HandleMovement();
+        HandleAnimation();
     }
 
     private void HandleInput()
     {
-        if (Input.GetKey(KeyCode.A))
-        {
-            MoveLeft();
-        }
-        else if (Input.GetKey(KeyCode.D))
-        {
-            MoveRight();
-        }
+        horizontal = Input.GetAxis("Horizontal");
 
         if (Input.GetKeyDown(KeyCode.Space) && isGround)
         {
             Jump();
         }
+        if (Input.GetKeyDown(KeyCode.J))
+        {
+            Attack();
+        }
     }
 
-    private void MoveLeft()
+    private void HandleMovement()
     {
-        transform.position += new Vector3(speed*Time.deltaTime*-1, 0, 0);
-        transform.localScale = new Vector3(-Math.Abs(transform.localScale.x),transform.localScale.y,transform.localScale.z);
+        if(horizontal > 0)
+        {
+            rb.velocity = new Vector2(horizontal*speed, rb.velocity.y);
+            transform.localScale = new Vector2(Math.Abs(transform.localScale.x), transform.localScale.y);
+
+        }
+        else if(horizontal < 0)
+        {
+            rb.velocity = new Vector2(horizontal*speed, rb.velocity.y);
+            transform.localScale = new Vector2(-Math.Abs(transform.localScale.x), transform.localScale.y);
+        }
+
     }
-    
-    private void MoveRight()
+
+    private void HandleAnimation()
     {
-        transform.position += new Vector3(speed*Time.deltaTime*+1, 0, 0);
-        transform.localScale = new Vector3(Math.Abs(transform.localScale.x),transform.localScale.y,transform.localScale.z);
+        animator.SetBool("isGround", isGround);
+        animator.SetFloat("Xvelocity", rb.velocity.x);
+        animator.SetFloat("Yvelocity", rb.velocity.y);
     }
 
     private void Jump()
     {
         rb.AddForce(new Vector2(0,jumpForce), ForceMode2D.Impulse);
         isGround = false;
+    }
+
+    private void Attack()
+    {
+        if(isGround == true)
+        {
+            animator.SetTrigger("attack");
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -63,6 +89,7 @@ public class Player : MonoBehaviour
             isGround = true;
         }
     }
+
 
 }
 
