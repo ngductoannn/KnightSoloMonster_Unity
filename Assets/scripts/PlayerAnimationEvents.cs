@@ -17,6 +17,11 @@ public class PlayerAnimationEvents : MonoBehaviour
         
     }
 
+    public void DamageEnemies()
+    {
+        player.DamageEnemies();
+    }
+
     private void DisableMovementAndJump()
     {
         player.DisableMovementAndJump();

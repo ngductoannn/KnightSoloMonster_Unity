@@ -2,15 +2,26 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.XR;
 
 public class Player : MonoBehaviour
 {
-    [Header("Movement")]
+    [Header("Attack Details")]
+    [SerializeField] private float attackRadius;
+    [SerializeField] private Transform attackPoint;
+    [SerializeField] private LayerMask WhatIsEnemy;
+
+    [Header("Movement Details")]
     [SerializeField] private float speed;
     [SerializeField] private float jumpForce;
 
-    [Header("Check")]
+    [Header("Collision Details")]
+    [SerializeField] private float groundCheckDistance;
     [SerializeField] private bool isGround;
+    [SerializeField] private LayerMask WhatIsGround;
+
+    [Header("Check")]
+    [SerializeField] private bool facingRight = true;
     [SerializeField] private bool canMove = true;
     [SerializeField] private bool canJump = true;
 
@@ -27,9 +38,20 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
+        HandleCollision();
         HandleInput();
         HandleMovement();
         HandleAnimation();
+        HandleFlip();
+    }
+
+    public void DamageEnemies()
+    {
+        Collider2D[] enemyColliders = Physics2D.OverlapCircleAll(attackPoint.position, attackRadius, WhatIsEnemy);
+
+        foreach(Collider2D enemy in enemyColliders){
+            enemy.GetComponent<Enemy>().TakeDamage();  
+        }
     }
 
     public void EnableMovementAndJump()
@@ -62,17 +84,7 @@ public class Player : MonoBehaviour
     {
         if (canMove)
         {
-            if(horizontal > 0)
-            {
-                rb.velocity = new Vector2(horizontal*speed, rb.velocity.y);
-                transform.localScale = new Vector2(Math.Abs(transform.localScale.x), transform.localScale.y);
-
-            }
-            else if(horizontal < 0)
-            {
-                rb.velocity = new Vector2(horizontal*speed, rb.velocity.y);
-                transform.localScale = new Vector2(-Math.Abs(transform.localScale.x), transform.localScale.y);
-            }   
+            rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);
         }
         else
         {
@@ -99,21 +111,39 @@ public class Player : MonoBehaviour
 
     private void Attack()
     {
-        if(isGround == true)
+        if(isGround)
         {
             animator.SetTrigger("attack");
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void HandleFlip()
     {
-        if(collision.gameObject.tag == "Ground")
+        if(rb.velocity.x > 0 && !facingRight)
         {
-            isGround = true;
+            Flip();
         }
+        else if(rb.velocity.x < 0 && facingRight)
+        {
+            Flip();
+        }
+    }
+    private void Flip()
+    {
+        transform.Rotate(0, 180, 0);
+        facingRight = !facingRight;
+    }
+
+    private void HandleCollision()
+    {
+        isGround = Physics2D.Raycast(transform.position, Vector2.down, groundCheckDistance, WhatIsGround);
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawLine(transform.position, transform.position + new Vector3(0, -groundCheckDistance));
+        Gizmos.DrawWireSphere(attackPoint.position, attackRadius);
     }
 
 
 }
-
-// code so clean
