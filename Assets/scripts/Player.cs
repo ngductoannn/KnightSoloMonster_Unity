@@ -11,19 +11,20 @@ public class Player : MonoBehaviour
 
     [Header("Check")]
     [SerializeField] private bool isGround;
+    [SerializeField] private bool canMove = true;
+    [SerializeField] private bool canJump = true;
 
     private Animator animator;
 
     private float horizontal;
     private Rigidbody2D rb;
-    // Start is called before the first frame update
+
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
     }   
 
-    // Update is called once per frame
     private void Update()
     {
         HandleInput();
@@ -31,11 +32,23 @@ public class Player : MonoBehaviour
         HandleAnimation();
     }
 
+    public void EnableMovementAndJump()
+    {
+        canMove = true;
+        canJump = true;
+    }
+
+    public void DisableMovementAndJump()
+    {
+        canJump = false;
+        canMove = false;
+    }
+
     private void HandleInput()
     {
         horizontal = Input.GetAxis("Horizontal");
 
-        if (Input.GetKeyDown(KeyCode.Space) && isGround)
+        if (Input.GetKeyDown(KeyCode.Space))
         {
             Jump();
         }
@@ -47,16 +60,23 @@ public class Player : MonoBehaviour
 
     private void HandleMovement()
     {
-        if(horizontal > 0)
+        if (canMove)
         {
-            rb.velocity = new Vector2(horizontal*speed, rb.velocity.y);
-            transform.localScale = new Vector2(Math.Abs(transform.localScale.x), transform.localScale.y);
+            if(horizontal > 0)
+            {
+                rb.velocity = new Vector2(horizontal*speed, rb.velocity.y);
+                transform.localScale = new Vector2(Math.Abs(transform.localScale.x), transform.localScale.y);
 
+            }
+            else if(horizontal < 0)
+            {
+                rb.velocity = new Vector2(horizontal*speed, rb.velocity.y);
+                transform.localScale = new Vector2(-Math.Abs(transform.localScale.x), transform.localScale.y);
+            }   
         }
-        else if(horizontal < 0)
+        else
         {
-            rb.velocity = new Vector2(horizontal*speed, rb.velocity.y);
-            transform.localScale = new Vector2(-Math.Abs(transform.localScale.x), transform.localScale.y);
+            rb.velocity = new Vector2(0, rb.velocity.y);
         }
 
     }
@@ -70,8 +90,11 @@ public class Player : MonoBehaviour
 
     private void Jump()
     {
-        rb.AddForce(new Vector2(0,jumpForce), ForceMode2D.Impulse);
-        isGround = false;
+        if (isGround && canJump)
+        {
+            rb.AddForce(new Vector2(0,jumpForce), ForceMode2D.Impulse);
+            isGround = false;
+        }
     }
 
     private void Attack()
