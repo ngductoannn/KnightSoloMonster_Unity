@@ -6,30 +6,63 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    [Header("Declaration")]
     private Rigidbody2D rb;
     private Animator animator;
+    private CapsuleCollider2D hitBox;
 
     [Header("Movement")]
     [SerializeField] private float speedMove;
     [SerializeField] private float jumpForce;
     [SerializeField] private float horizontal;
 
-    [Header("Check Movement")]
+    [Header("Check Jump")]
     [SerializeField] private bool isGround;
+
+    [Header("Check Slice")]
+    [SerializeField] private float timeSpawnSlice = 0f;
+    [SerializeField] private Vector2 hitBoxOffsetStand;
+    [SerializeField] private Vector2 hitBoxSizeStand;
+    [SerializeField] private Vector2 hitBoxOffsetSlice;
+    [SerializeField] private Vector2 hitBoxSizeSlice;
+
+    [Header("Check Attack")]
     [SerializeField] private bool canMove = true;
     [SerializeField] private bool canJump = true;
+    [SerializeField] private float timeSpawnAttack = 0f;
+
+    [Header("Attack Damage")]
+    [SerializeField] private Transform attackPoint;
+    [SerializeField] private float attackRadius = 0.5f;
+    [SerializeField] private LayerMask enemyLayer;
+    [SerializeField] private int damage = 1;
+
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponentInChildren<Animator>();
+        hitBox = GetComponentInChildren<CapsuleCollider2D>();
+
+        hitBoxOffsetStand = hitBox.offset;
+        hitBoxSizeStand = hitBox.size;
+        hitBoxOffsetSlice = new Vector2(hitBox.offset.x, -0.3f);
+        hitBoxSizeSlice = new Vector2(hitBox.size.x, 1.1f);
     }
 
     void Update()
     {
+        HandleTime();
         HandleDeclaration();
         HandleInput();
         HandleMovement();
         HandleAnimation();
+    }
+
+    private void HandleTime()
+    {
+        timeSpawnAttack -= Time.deltaTime;
+        timeSpawnSlice -= Time.deltaTime;
     }
 
     private void HandleDeclaration()
@@ -43,9 +76,13 @@ public class Player : MonoBehaviour
         {
             Jump();
         }
-        else if (Input.GetKeyDown(KeyCode.J))
+        else if (Input.GetKeyDown(KeyCode.J) && isGround && timeSpawnAttack <= 0)
         {
             Attack();
+        }
+        else if (Input.GetKeyDown(KeyCode.K) && isGround && timeSpawnSlice <= 0)
+        {
+            Slice();
         }
     }
 
@@ -77,8 +114,25 @@ public class Player : MonoBehaviour
     private void Attack()
     {
         animator.SetTrigger("Attack");
+        timeSpawnAttack = 0.5f;
     }
 
+    public void DealDamage()
+    {
+        Collider2D[] hits = Physics2D.OverlapCircleAll(attackPoint.position, attackRadius, enemyLayer);
+
+        foreach (Collider2D hit in hits)
+        {
+            Enemy enemy = hit.GetComponent<Enemy>();
+            if (enemy != null)
+                enemy.TakeDamage(damage);
+        }
+    }
+    private void Slice()
+    {
+        animator.SetTrigger("Slice");
+        timeSpawnSlice = 0.5f;
+    }
     private void HandleAnimation()
     {
         if (isGround)
@@ -111,6 +165,17 @@ public class Player : MonoBehaviour
         canJump = false;
     }
 
+    public void HitBoxBeforeAndAfterSlice()
+    {
+        hitBox.size = hitBoxSizeStand;
+        hitBox.offset = hitBoxOffsetStand;
+    }
+
+    public void HitBoxWhenSlice()
+    {
+        hitBox.offset = hitBoxOffsetSlice;
+        hitBox.size = hitBoxSizeSlice;
+    }
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if(collision.gameObject.tag == "ground")
@@ -127,4 +192,8 @@ public class Player : MonoBehaviour
         }
     }
 
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.DrawWireSphere(attackPoint.position, attackRadius);
+    }
 }

@@ -15,5 +15,20 @@ public class PlayerAnimationEvents : MonoBehaviour
     {
         player.NotCanMoveAndJump();
     }
+
+    public void HitBoxBeforeAndAfterSlice()
+    {
+        player.HitBoxBeforeAndAfterSlice();
+    }
+
+    public void HitBoxWhenSlice()
+    {
+        player.HitBoxWhenSlice();
+    }
+
+    public void DealDamage()
+    {
+        player.DealDamage();
+    }
     
 }
