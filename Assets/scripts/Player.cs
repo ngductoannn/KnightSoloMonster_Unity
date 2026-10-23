@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
@@ -10,6 +12,8 @@ public class Player : MonoBehaviour
     private Rigidbody2D rb;
     private Animator animator;
     private CapsuleCollider2D hitBox;
+    [SerializeField] private int hp; 
+    [SerializeField] private Slider playerHpBar;
 
     [Header("Movement")]
     [SerializeField] private float speedMove;
@@ -48,6 +52,8 @@ public class Player : MonoBehaviour
         hitBoxSizeStand = hitBox.size;
         hitBoxOffsetSlice = new Vector2(hitBox.offset.x, -0.3f);
         hitBoxSizeSlice = new Vector2(hitBox.size.x, 1.1f);
+        hp = 5;
+        playerHpBar.value = hp;
     }
 
     void Update()
@@ -195,5 +201,13 @@ public class Player : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         Gizmos.DrawWireSphere(attackPoint.position, attackRadius);
+    }
+
+    public void TakeDamage(int dmg)
+    {
+        hp -= dmg;
+        playerHpBar.value = hp;
+        if (hp <= 0)
+            SceneManager.LoadScene("Lose");
     }
 }

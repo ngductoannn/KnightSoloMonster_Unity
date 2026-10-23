@@ -15,4 +15,19 @@ public class EnemyAnimatonEvents : MonoBehaviour
     {
         enemy.PotisionAfterFlash();
     }
+
+    public void AttackDealDamage()
+    {
+        enemy.AttackDealDamage();
+    }
+
+    public void SkillStart()
+    {
+        enemy.SkillStart();
+    }
+
+    public void SkillDuring()
+    {
+        enemy.SkillDuring();
+    }
 }
